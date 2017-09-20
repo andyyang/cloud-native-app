@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+  name: cloud-native-app
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cloud-native-app
+    spec:
+      containers:
+        - name: cloud-native-app
+          image: anubhavmishra/cloud-native-app:latest
+          ports:
+          - containerPort: 8080
+          env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
