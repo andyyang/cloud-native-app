@@ -33,7 +33,9 @@ push: ## docker push the service images tagged 'latest' & 'BUILD_ID'
 	docker push $(IMAGE_NAME):latest
 
 cleanup: ## Clean up all kubernetes resources
-	kubectl delete deployment kubernetes-envoy-sds,cloud-native-app --namespace=kube-system
-	kubectl delete service kubernetes-envoy-sds,cloud-native-app --namespace=kube-system
+	kubectl delete deployment kubernetes-envoy-sds --namespace=kube-system
+	kubectl delete service kubernetes-envoy-sds --namespace=kube-system
 	kubectl delete daemonset envoy --namespace=kube-system
 	kubectl delete configmap envoy --namespace=kube-system
+	kubectl delete service envoy --namespace=kube-system 
+	kubectl delete deployment,svc cloud-native-app
