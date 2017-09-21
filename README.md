@@ -206,11 +206,11 @@ kubectl delete -f cloud-native-app-service.yaml
 Let's explore the our microservices
 
 ```bash
-vim kubernetes/cloud-native-microservices.yaml
+vim kubernetes/cloud-native-microservices-v1.yaml
 ```
 
 ```bash
-kubectl apply -f <(istioctl kube-inject -f kubernetes/cloud-native-microservices.yaml)
+kubectl apply -f <(istioctl kube-inject -f kubernetes/cloud-native-microservices-v1.yaml)
 ```
 
 Now lets find our ingress
@@ -222,6 +222,69 @@ kubectl get ingress cloud-native-app-gateway
 ```bash
 kubectl describe ingress cloud-native-app-gateway
 ```
+
+curl the ip or domain
+
+```bash
+curl -H 'Host: cloud-native-app.livedemos.xyz' 35.197.72.213
+```
+
+```bash
+curl cloud-native-app.livedemos.xyz
+```
+
+Lets loop it!
+
+```bash
+while true; do curl -H 'Host: cloud-native-app.livedemos.xyz' 35.197.72.213; echo ""; sleep 0.5;done
+```
+
+### Traffic Shaping
+
+```bash
+istioctl create -f rules/foo.yaml
+```
+
+```bash
+istioctl create -f rules/bar.yaml
+```
+
+```bash
+istioctl get route-rules --namespace istio-system
+```
+
+```bash
+route-rule/istio-system/bar-istio-system
+route-rule/istio-system/foo-istio-system
+```
+
+Lets now try to shape some traffic for `foo` application
+
+```bash
+vim rules/foo.yaml
+```
+
+```bash
+istioctl replace -f rules/foo.yaml
+```
+
+Deploy v2 of the applications
+
+```bash
+kubectl apply -f kubernetes/cloud-native-microservices-v2.yaml
+```
+
+Deny
+
+```bash
+istioctl mixer rule create global foo.istio-system.svc.cluster.local -f rules/foo-deny.yaml --namespace istio-system
+```
+
+```bash
+istioctl mixer rule delete global foo.istio-system.svc.cluster.local  --namespace istio-system
+```
+
+
 
 
 

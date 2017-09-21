@@ -1,0 +1,11 @@
+apiVersion: config.istio.io/v1alpha2
+kind: rule
+metadata:
+  name: denycloudnativeapp
+  namespace: istio-system
+spec:
+  match: source.labels["app"] == "cloud-native-app"
+  actions:
+  - handler: denyall.denier
+    instances:
+    - denyrequest.checknothing

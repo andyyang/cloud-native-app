@@ -1,0 +1,75 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+  name: foo-v2
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: foo
+        version: v2
+    spec:
+      containers:
+        - name: foo
+          image: anubhavmishra/yet-another-golang-webserver:v2
+          ports:
+          - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /status/am-i-up
+              port: 8080
+            failureThreshold: 3
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /status/am-i-up
+              port: 8080
+            failureThreshold: 3
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+  name: bar-v2
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: bar
+        version: v2
+    spec:
+      containers:
+        - name: bar
+          image: anubhavmishra/yet-another-golang-webserver:v2
+          ports:
+          - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /status/am-i-up
+              port: 8080
+            failureThreshold: 3
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /status/am-i-up
+              port: 8080
+            failureThreshold: 3
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
