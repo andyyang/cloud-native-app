@@ -1,0 +1,166 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+  name: cloud-native-app
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: cloud-native-app
+    spec:
+      containers:
+        - name: cloud-native-app
+          image: anubhavmishra/cloud-native-app:latest
+          ports:
+          - containerPort: 8080
+          env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: FOO_SERVICE_ADDR
+            value: "foo:8080"
+          - name: BAR_SERVICE_ADDR
+            value: "bar:8080"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+  name: cloud-native-app
+  labels:
+    name: cloud-native-app
+spec:
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: cloud-native-app
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+  name: foo-v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: foo
+        version: v1
+    spec:
+      containers:
+        - name: foo
+          image: anubhavmishra/yet-another-golang-webserver:v1
+          ports:
+          - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /status/am-i-up
+              port: 8080
+            failureThreshold: 3
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /status/am-i-up
+              port: 8080
+            failureThreshold: 3
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+  name: bar-v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: bar
+        version: v1
+    spec:
+      containers:
+        - name: bar
+          image: anubhavmishra/yet-another-golang-webserver:v1
+          ports:
+          - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /status/am-i-up
+              port: 8080
+            failureThreshold: 3
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /status/am-i-up
+              port: 8080
+            failureThreshold: 3
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+  name: foo
+  labels:
+    name: foo
+spec:
+  ports:
+  - name: http
+    port: 8080
+  selector:
+    app: foo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+  name: bar
+  labels:
+    name: bar
+spec:
+  ports:
+  - name: http
+    port: 8080
+  selector:
+    app: bar
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: cloud-native-app-gateway
+  annotations:
+    kubernetes.io/ingress.class: "istio"
+spec:
+  rules:
+  - host: cloud-native-app.livedemos.xyz
+    http:
+      paths:
+      - path: /.*
+        backend:
+          serviceName: cloud-native-app
+          servicePort: 8080
+---

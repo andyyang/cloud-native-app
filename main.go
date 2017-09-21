@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -19,6 +20,11 @@ type WrapHTTPHandler struct {
 type LoggedResponse struct {
 	http.ResponseWriter
 	status int
+}
+
+type ServiceResponseBody struct {
+	Message string `json:"message"`
+	Version string `json:"version"`
 }
 
 var (
@@ -75,9 +81,37 @@ func rootHandler(writer http.ResponseWriter, request *http.Request) {
 	hostname, _ := os.Hostname()
 	// get node name from environment
 	nodeName := os.Getenv("NODE_NAME")
+	// get microservice dependencies
+	foo := os.Getenv("FOO_SERVICE_ADDR")
+	bar := os.Getenv("BAR_SERVICE_ADDR")
+
+	// create response
+	response := fmt.Sprintf("You've hit the home page of the cloud native app with hostname \"%s\" on node \"%s\".\n", hostname, nodeName)
+
+	// prepare microservices responses
+	if foo != "" {
+		log.SetPrefix("[Info]")
+		log.Printf("[%s] calling foo service at %s", foo)
+		fooResponse := callService(foo)
+		response = fmt.Sprintf("%sfoo response:\n message -> %s\n version -> %s\n", response, fooResponse.Message, fooResponse.Version)
+	}
+
+	if bar != "" {
+		log.SetPrefix("[Info]")
+		log.Printf("[%s] calling bar service at %s", bar)
+		barResponse := callService(bar)
+		response = fmt.Sprintf("%sbar response:\n message -> %s\n version -> %s\n", response, barResponse.Message, barResponse.Version)
+	}
 
 	writer.WriteHeader(http.StatusOK)
-	fmt.Fprintf(writer, "You've hit the home page of the cloud native app with hostname \"%s\" on node \"%s\".", hostname, nodeName)
+	fmt.Fprintf(writer, response)
+}
+
+func callService(serviceAddress string) ServiceResponseBody {
+	resp, _ := http.Get(fmt.Sprintf("http://%s", serviceAddress))
+	var body ServiceResponseBody
+	json.NewDecoder(resp.Body).Decode(&body)
+	return body
 }
 
 func errorHandler(writer http.ResponseWriter, request *http.Request) {

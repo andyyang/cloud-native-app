@@ -13,8 +13,7 @@ deps: ## Get dependencies
 	go get .
 
 build-service: ## Build the main Go service
-	mkdir -p ./build/linux/amd64
-	GOOS=linux GOARCH=amd64 go build -v -o ./build/linux/amd64/cloud-native-app .
+	GOOS=linux GOARCH=amd64 go build -v .
 	docker build -t $(IMAGE_NAME):$(BUILD_ID) .
 	docker tag $(IMAGE_NAME):$(BUILD_ID) $(IMAGE_NAME):latest
 
@@ -33,9 +32,4 @@ push: ## docker push the service images tagged 'latest' & 'BUILD_ID'
 	docker push $(IMAGE_NAME):latest
 
 cleanup: ## Clean up all kubernetes resources
-	kubectl delete deployment kubernetes-envoy-sds --namespace=kube-system
-	kubectl delete service kubernetes-envoy-sds --namespace=kube-system
-	kubectl delete daemonset envoy --namespace=kube-system
-	kubectl delete configmap envoy --namespace=kube-system
-	kubectl delete service envoy --namespace=kube-system 
 	kubectl delete deployment,svc cloud-native-app
