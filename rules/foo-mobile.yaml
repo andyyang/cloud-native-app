@@ -1,0 +1,13 @@
+type: route-rule
+name: foo-canary
+namespace: istio-system
+spec:
+  destination: foo.istio-system.svc.cluster.local
+  match:
+    httpHeaders:
+      x-forwarded-user-agent:
+        exact: mobile
+  precedence: 2
+  route:
+  - tags:
+      version: v2

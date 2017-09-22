@@ -210,7 +210,11 @@ vim kubernetes/cloud-native-microservices-v1.yaml
 ```
 
 ```bash
-kubectl apply -f <(istioctl kube-inject -f kubernetes/cloud-native-microservices-v1.yaml)
+kubectl apply -f <(istioctl kube-inject -f kubernetes/cloud-native-microservices-v1.yaml --namespace=istio-system)
+```
+
+```bash
+kubectl apply -f <(istioctl kube-inject -f kubernetes/cloud-native-app-ingress.yaml --namespace=istio-system)
 ```
 
 Now lets find our ingress
@@ -226,7 +230,7 @@ kubectl describe ingress cloud-native-app-gateway
 curl the ip or domain
 
 ```bash
-curl -H 'Host: cloud-native-app.livedemos.xyz' 35.197.72.213
+curl -H 'Host: cloud-native-app.livedemos.xyz' 104.196.249.219
 ```
 
 ```bash
@@ -236,17 +240,23 @@ curl cloud-native-app.livedemos.xyz
 Lets loop it!
 
 ```bash
-while true; do curl -H 'Host: cloud-native-app.livedemos.xyz' 35.197.72.213; echo ""; sleep 0.5;done
+while true; do curl -H 'Host: cloud-native-app.livedemos.xyz' 104.196.249.219; echo ""; sleep 0.5;done
 ```
 
 ### Traffic Shaping
 
+Deploy v2 of the applications
+
 ```bash
-istioctl create -f rules/foo.yaml
+kubectl apply -f <(istioctl kube-inject -f kubernetes/cloud-native-microservices-v2.yaml --namespace=istio-system)
 ```
 
 ```bash
-istioctl create -f rules/bar.yaml
+istioctl create -f rules/foo.yaml --namespace=istio-system
+```
+
+```bash
+istioctl create -f rules/bar.yaml --namespace=istio-system
 ```
 
 ```bash
@@ -254,8 +264,8 @@ istioctl get route-rules --namespace istio-system
 ```
 
 ```bash
-route-rule/istio-system/bar-istio-system
-route-rule/istio-system/foo-istio-system
+foo-istio-system
+bar-istio-system
 ```
 
 Lets now try to shape some traffic for `foo` application
@@ -268,11 +278,16 @@ vim rules/foo.yaml
 istioctl replace -f rules/foo.yaml
 ```
 
-Deploy v2 of the applications
+I want to canary a mobile device
 
 ```bash
-kubectl apply -f kubernetes/cloud-native-microservices-v2.yaml
+istioctl create -f rules/foo-mobile.yaml --namespace=istio-system
 ```
+
+```bash
+istioctl delete route-rule foo-canary --namespace istio-system
+```
+
 
 Deny
 
@@ -281,7 +296,7 @@ istioctl mixer rule create global foo.istio-system.svc.cluster.local -f rules/fo
 ```
 
 ```bash
-istioctl mixer rule delete global foo.istio-system.svc.cluster.local  --namespace istio-system
+istioctl mixer rule delete global foo.istio-system.svc.cluster.local --namespace istio-system
 ```
 
 

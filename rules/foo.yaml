@@ -1,15 +1,13 @@
-apiVersion: config.istio.io/v1alpha2
-kind: RouteRule
-metadata:
-  name: foo-istio-system
-  namespace: istio-system
+type: route-rule
+name: foo-istio-system
+namespace: istio-system
 spec:
-  destination:
-    name: foo
+  destination: foo.istio-system.svc.cluster.local
+  precedence: 1
   route:
-  - labels:
+  - tags:
       version: v1
-    weight: 0
-  - labels:
-      version: v2
     weight: 100
+  - tags:
+      version: v2
+    weight: 0

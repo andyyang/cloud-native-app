@@ -147,20 +147,3 @@ spec:
     port: 8080
   selector:
     app: bar
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: cloud-native-app-gateway
-  annotations:
-    kubernetes.io/ingress.class: "istio"
-spec:
-  rules:
-  - host: cloud-native-app.livedemos.xyz
-    http:
-      paths:
-      - path: /.*
-        backend:
-          serviceName: cloud-native-app
-          servicePort: 8080
----
