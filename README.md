@@ -195,6 +195,14 @@ cloud-native-app-913471705-djpnz   1/1       Running   0          58s
 cloud-native-app-913471705-v247t   1/1       Running   0          58s
 ```
 
+Get some logs
+
+```bash
+kubectl logs -f {POD_NAME}
+```
+
+* Look at fluentd and GCP
+
 ## Deploy Cloud Native Microservices
 
 First we delete currently running `cloud-native-app` service since it exposed as `LoadBalancer` type
