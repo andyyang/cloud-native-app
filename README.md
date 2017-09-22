@@ -268,7 +268,7 @@ istioctl create -f rules/bar.yaml --namespace=istio-system
 ```
 
 ```bash
-istioctl get route-rules --namespace istio-system
+istioctl get route-rules --namespace=istio-system
 ```
 
 ```bash
@@ -283,7 +283,7 @@ vim rules/foo.yaml
 ```
 
 ```bash
-istioctl replace -f rules/foo.yaml
+istioctl replace -f rules/foo.yaml --namespace=istio-system
 ```
 
 I want to canary a mobile device
