@@ -53,7 +53,7 @@ gcloud container clusters get-credentials cloud-native-app --zone us-west1-b --p
 
 ## Provision Istio
 
-Follow the [guide](https://istio.io/docs/setup/install-kubernetes.html) on Istio's website to install Istio on Kubernetes. Just make sure you get to the [Verify the installation](https://istio.io/docs/setup/install-kubernetes.html#verifying-the-installation) step.
+Follow the [guide](https://istio.io/v-0.1/docs/tasks/installing-istio.html) on Istio's website to install Istio on Kubernetes. Just make sure you get to the [Verify the installation](https://istio.io/v-0.1/docs/tasks/installing-istio.html#verifying-the-installation) step.
 
 Now you have istio and the addons like Prometheus, Grafana and ServiceGraph installed!
 
